@@ -1,0 +1,163 @@
+@startuml AutomatedLinkAcceptance
+
+skinparam componentStyle rectangle
+
+title
+UseCase: AutomatedLinkAcceptance 2.0
+end title
+
+actor USER as USER
+
+package "AutomatedLinkAcceptance 2.0" {
+  interface GUI as GUI
+  USER -[hidden] GUI
+  component [APT\n] as APT
+  GUI -[hidden] APT
+  component [MO\n1.0.0] as MO
+  APT -[hidden] MO
+  'Ericsson devices checked for r/w user configuration
+  component [E_Connection\nPreparation] as E_ConnectionPreparation
+  MO -[hidden] E_ConnectionPreparation
+  'SDN user to be configured into Huawei devices
+  component [H_Connection\nPreparation] as H_ConnectionPreparation
+  MO -[hidden] H_ConnectionPreparation
+  E_ConnectionPreparation -[hidden]- H_ConnectionPreparation
+  'SDN user to be configured into SIAE devices
+  component [S_Connection\nPreparation] as S_ConnectionPreparation
+  MO -[hidden] S_ConnectionPreparation
+  H_ConnectionPreparation -[hidden]- S_ConnectionPreparation
+
+  component [MM\n1.0.0] as MM
+  MO -[hidden]- MM
+  component [E_Mediator\nManager] as E_MediatorManager
+  MO -[hidden] E_MediatorManager
+  component [E_Mediator\nInstance] as E_MediatorInstance
+  E_MediatorManager -[hidden]- E_MediatorInstance
+  component [TrafficeNode\netc.] as E_Device
+  E_MediatorInstance -[hidden] E_Device
+  component [H_Mediator\nManager] as H_MediatorManager
+  E_MediatorInstance -[hidden]- H_MediatorManager
+  component [H_Mediator\nInstance] as H_MediatorInstance
+  E_MediatorInstance -[hidden]- H_MediatorInstance
+  H_MediatorManager -[hidden]- H_MediatorInstance
+  component [RTN900\netc.] as H_Device
+  H_MediatorInstance -[hidden] H_Device
+  E_Device -[hidden]- H_Device
+  component [S_Mediator\nManager] as S_MediatorManager
+  H_MediatorInstance -[hidden]- S_MediatorManager
+  component [S_Mediator\nInstance] as S_MediatorInstance
+  H_MediatorInstance -[hidden]- S_MediatorInstance
+  S_MediatorManager -[hidden]- S_MediatorInstance
+  component [ALC+2e\netc.] as S_Device 
+  S_MediatorInstance -[hidden] S_Device
+  H_Device -[hidden]- S_Device
+
+  'LinkidIntoLtpWriter
+  component [LILW\n1.0.0] as LILW
+  'PerformanceMonitoringActivator
+  component [PMA\n1.0.0] as PMA
+  'MicroWaveDeviceGatekeeper
+  component [MWDG\n1.1.0] as MWDG
+
+
+  component [ALAP\n1.1.0] as ALAP
+  GUI -[hidden]- ALAP
+  GUI -[hidden]- ALAP
+  APT -[hidden]- ALAP
+  component [MWDI\n1.2.0] as MWDI
+  GUI -[hidden]- MWDI
+  APT -[hidden]- MWDI
+  ALAP -[hidden] MWDI
+  component [ODL\n] as ODL
+  APT -[hidden]- ODL
+  MWDI -[hidden] ODL
+  ODL -[hidden] LILW
+
+  'component [S_PNI\n1.0.0] as S_PNI
+  'ALAP -[hidden]- S_PNI
+  'component [H_PNI\n1.0.0] as H_PNI
+  'S_PNI -[hidden] H_PNI
+  'MWDI -[hidden]- H_PNI
+  'component [E_PNI\n1.0.0] as E_PNI
+  'ODL -[hidden]- E_PNI
+  'H_PNI -[hidden] E_PNI
+
+  'component [NP\n1.0.0] as NP
+  'S_PNI -[hidden]- NP
+  'H_PNI -[hidden]- NP
+  'E_PNI -[hidden]- NP
+
+  cloud DataSource [
+    IP Address
+    Username
+    Password
+  ]
+  DataSource <-- E_Device #LightGreen : 1e
+  DataSource <-- H_Device #LightGreen : 1h
+  DataSource <-- S_Device #LightGreen : 1s
+
+  USER - GUI #LightSalmon
+  GUI -> APT #LightSalmon : 1.0
+
+  APT -> MO #SkyBlue : 2.1
+
+  MO -> E_ConnectionPreparation #SkyBlue : 2.2.1e
+  E_ConnectionPreparation ..> E_Device #SkyBlue : 2.2.2e
+  MO -> H_ConnectionPreparation #SkyBlue : 2.2.1h
+  H_ConnectionPreparation ..> H_Device #SkyBlue : 2.2.2h
+  MO -> S_ConnectionPreparation #SkyBlue : 2.2.1s
+  S_ConnectionPreparation ..> S_Device #SkyBlue : 2.2.2s
+
+  MO -> MM #SkyBlue : 2.3.1
+  MM -> E_MediatorManager #SkyBlue : 2.3.2e
+  E_MediatorManager ..> E_MediatorInstance #SkyBlue : create 2.3.3e
+  MM -> H_MediatorManager #SkyBlue : 2.3.2h
+  H_MediatorManager ..> H_MediatorInstance #SkyBlue : create 2.3.3h
+  MM -> S_MediatorManager #SkyBlue : 2.3.3s
+  S_MediatorManager ..> S_MediatorInstance #SkyBlue : create 2.3.3s
+
+  MO -> ODL #SkyBlue : 2.4
+
+  MO -> LILW #SkyBlue : 2.5.1
+  LILW -> MWDG #SkyBlue : 2.5.2
+  MWDG -> ODL #SkyBlue : 2.5.3/2.6.3
+
+  MO -> PMA #SkyBlue : 2.6.1
+  PMA -> MWDG #SkyBlue : 2.6.2
+
+  ODL -> E_MediatorInstance #SkyBlue : 2.14e
+  ODL -> H_MediatorInstance #SkyBlue : 2.14h
+  ODL -> S_MediatorInstance #SkyBlue : 2.14s
+  E_MediatorInstance -> E_Device #SkyBlue : 2.15e
+  H_MediatorInstance -> H_Device #SkyBlue : 2.15h
+  S_MediatorInstance -> S_Device #SkyBlue : 2.15s
+
+
+  APT --> ALAP #LightSalmon : 3.1
+  ALAP -> MWDI #LightSalmon : 3.2
+  MWDI -> ODL #LightSalmon : 3.3
+  ODL -> E_MediatorInstance #LightSalmon : 3.4e
+  ODL -> H_MediatorInstance #LightSalmon : 3.4h
+  ODL -> S_MediatorInstance #LightSalmon : 3.4s
+  E_MediatorInstance -> E_Device #LightSalmon : 3.5e
+  H_MediatorInstance -> H_Device #LightSalmon : 3.5h
+  S_MediatorInstance -> S_Device #LightSalmon : 3.5s
+
+/'
+  E_Device -> E_MediatorInstance #Grey : 4.1e
+  H_Device -> H_MediatorInstance #Grey : 4.1h
+  S_Device -> S_MediatorInstance #Grey : 4.1s
+  E_MediatorInstance -> NP #Grey : 4.2e
+  H_MediatorInstance -> NP #Grey : 4.2h
+  S_MediatorInstance -> NP #Grey : 4.2s
+  NP -> E_PNI #Grey : 4.3e
+  NP -> H_PNI #Grey : 4.3h
+  NP -> S_PNI #Grey : 4.3s
+  E_PNI -> MWDI #Grey : 4.3e
+  H_PNI -> MWDI #Grey : 4.3h
+  S_PNI -> MWDI #Grey : 4.3s
+'/
+
+}
+
+@enduml
